@@ -1,0 +1,10 @@
+.*
+/*
+!.gitignore
+!Dockerfile
+!.github/
+!task-[0-9]*/
+task-[0-9]*/*
+!task-[0-9]*/src/
+!task-[0-9]*/pom.xml
+!/pom.xml
