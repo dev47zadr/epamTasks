@@ -27,6 +27,7 @@
         <module>task-14</module>
         <module>task-15</module>
         <module>task-16</module>
+        <module>testUtil</module>
     </modules>
 
     <properties>
