@@ -14,7 +14,7 @@ public class ProductContainer implements List<Product> {
     }
 
     public ProductContainer(int defaultSize) {
-        if (defaultSize < 5) {
+        if (defaultSize < this.DEFAULT_SIZE) {
             defaultSize = this.DEFAULT_SIZE;
         }
         this.products = new Product[defaultSize];
@@ -26,9 +26,9 @@ public class ProductContainer implements List<Product> {
             System.arraycopy(this.products, 0, newProducts, 0, this.size);
             this.products = newProducts;
         }
-        if (this.products.length > 5 && this.products.length > 3 * this.size) {
+        if (this.products.length > this.DEFAULT_SIZE && this.products.length > 3 * this.size) {
             Product[] newProducts = new Product[this.products.length / 2];
-            System.arraycopy(this.products, 0, newProducts, 0, this.products.length);
+            System.arraycopy(this.products, 0, newProducts, 0, this.size);
             this.products = newProducts;
         }
     }
@@ -41,7 +41,7 @@ public class ProductContainer implements List<Product> {
     }
 
     public void add(int i, Product product) {
-        Objects.checkIndex(i, this.size);
+        Objects.checkIndex(i, this.size+1);
         this.resizeIfNeeded();
         System.arraycopy(this.products, i, this.products, i + 1, this.size++ - i);
         this.products[i] = product;
@@ -50,33 +50,27 @@ public class ProductContainer implements List<Product> {
     public boolean addAll(Collection<? extends Product> collection) {
         Product[] oldProducts = Arrays.copyOf(this.products, this.products.length);
         int oldSize = this.size;
-        try {
-            for (Product product : collection) {
-                if (!this.add(product))
-                    return false;
-            }
-        } catch (NullPointerException e) {
-            this.products = oldProducts;
-            this.size = oldSize;
-            throw e;
+        for (Product product : collection) {
+            if (!this.add(product))
+                return false;
         }
         return true;
     }
 
     public boolean addAll(int i, Collection<? extends Product> collection) {
-        Objects.checkIndex(i, this.size);
-        Product[] newProducts = new Product[collection.size() - 1];
+        Objects.checkIndex(i, this.size+1);
+        Product[] newProducts = new Product[collection.size()];
         int arrayIndex = 0;
         for (Product product : collection) {
             Objects.requireNonNull(product);
             newProducts[arrayIndex++] = product;
         }
-        if (this.products.length < this.products.length + newProducts.length) {
+        if (this.products.length < this.size + newProducts.length) {
             this.products = Arrays.copyOf(this.products, this.products.length + newProducts.length);
         }
         System.arraycopy(this.products, i, this.products, i + newProducts.length, this.size - i);
         System.arraycopy(newProducts, 0, this.products, i, newProducts.length);
-        this.size += newProducts.length;
+        this.size = this.size + newProducts.length;
         this.resizeIfNeeded();
         return true;
     }
@@ -111,18 +105,31 @@ public class ProductContainer implements List<Product> {
 
     public boolean removeAll(Collection<?> collection) {
         for (var val : collection) {
-            if (!this.remove(val))
-                return false;
+            for(int i = this.size-1; i >= 0 ; i--) {
+                Product product = this.products[i];
+                if (product.equals(val)) {
+                    this.remove(i);
+                }
+            }
         }
         return true;
     }
 
     public boolean retainAll(Collection<?> collection) {
-        for (Product product : this.products) {
-            if (!collection.contains(product)) {
-                this.remove(product);
+        Product[] newProducts = new Product[this.products.length];
+        int newSize = 0;
+        for(int i = 0; i < this.size; i++) {
+            Product product = this.products[i];
+            for(var val: collection) {
+                if (product.equals(val)) {
+                    newProducts[newSize++] = product;
+                }
             }
         }
+        this.size = --newSize;
+        this.products = newProducts;
+        this.resizeIfNeeded();
+        this.size++;
         return true;
     }
 
