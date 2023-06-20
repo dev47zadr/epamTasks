@@ -3,6 +3,7 @@ package com.epamTasks.task1;
 import com.epamTasks.task1.entity.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ProductContainer implements List<Product> {
     private final int DEFAULT_SIZE = 10;
@@ -198,17 +199,11 @@ public class ProductContainer implements List<Product> {
     }
 
     public Iterator<Product> iterator() {
-        return new Iterator<Product>() {
-            int currentIndex = 0;
+        return new ProductIterator();
+    }
 
-            public boolean hasNext() {
-                return this.currentIndex < ProductContainer.this.size;
-            }
-
-            public Product next() {
-                return ProductContainer.this.products[this.currentIndex++];
-            }
-        };
+    public Iterator<Product> iterator(Predicate<Product> predicate) {
+        return new ProductIterator(predicate);
     }
 
     public ListIterator<Product> listIterator() {
@@ -219,6 +214,45 @@ public class ProductContainer implements List<Product> {
         Objects.checkIndex(i, this.size);
         return new ProductListIterator(i);
     }
+
+    private class ProductIterator implements Iterator<Product> {
+        private Predicate<Product> predicate;
+        private boolean isSetupPredicate = false;
+
+        int currentIndex = 0;
+        Product currentProduct;
+        public ProductIterator() {}
+        public ProductIterator(Predicate<Product> predicate) {
+            this.predicate = predicate;
+            this.isSetupPredicate = true;
+        }
+
+        public boolean hasNext() {
+            if (this.isSetupPredicate) {
+                Optional<Product> productOptional = ProductContainer.this.stream()
+                        .filter(p -> ProductContainer.this.indexOf(p) >= this.currentIndex)
+                        .filter(this.predicate)
+                        .findFirst();
+                if (productOptional.isEmpty()) {
+                    return false;
+                }
+                this.currentIndex = ProductContainer.this.indexOf(productOptional.get());
+                this.currentProduct = ProductContainer.this.products[this.currentIndex];
+                return true;
+            }
+            return this.currentIndex < ProductContainer.this.size;
+        }
+
+        public Product next() {
+            if (this.isSetupPredicate) {
+                if (Objects.isNull(this.currentProduct)) {
+                    throw new NoSuchElementException();
+                }
+                return ProductContainer.this.products[this.currentIndex++];
+            }
+            return ProductContainer.this.products[this.currentIndex++];
+        }
+    };
 
     private class ProductListIterator implements ListIterator<Product> {
         private final int DEFAULT_CURSOR = 0;
