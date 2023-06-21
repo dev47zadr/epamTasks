@@ -1,8 +1,9 @@
 package com.epamTasks.task1;
 
-import com.epamTasks.task1.entity.*;
+import com.epamTasks.task1.entity.Product;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ProductContainer implements List<Product> {
     private final int DEFAULT_SIZE = 10;
@@ -20,16 +21,17 @@ public class ProductContainer implements List<Product> {
         this.products = new Product[defaultSize];
     }
 
+    private void resize(int length) {
+        Product[] newProducts = new Product[length];
+        System.arraycopy(this.products, 0, newProducts, 0, this.size);
+        this.products = newProducts;
+    }
     private void resizeIfNeeded() {
         if (this.size == this.products.length) {
-            Product[] newProducts = new Product[this.products.length * 2];
-            System.arraycopy(this.products, 0, newProducts, 0, this.size);
-            this.products = newProducts;
+            this.resize(this.products.length * 2);
         }
-        if (this.products.length > this.DEFAULT_SIZE && this.products.length > 3 * this.size) {
-            Product[] newProducts = new Product[this.products.length / 2];
-            System.arraycopy(this.products, 0, newProducts, 0, this.size);
-            this.products = newProducts;
+        if ((double)this.products.length / 100 * this.size < 0.4 && this.products.length >= 20) {
+            this.resize(this.products.length / 2);
         }
     }
 
@@ -41,15 +43,13 @@ public class ProductContainer implements List<Product> {
     }
 
     public void add(int i, Product product) {
-        Objects.checkIndex(i, this.size+1);
+        Objects.checkIndex(i, this.size + 1);
         this.resizeIfNeeded();
         System.arraycopy(this.products, i, this.products, i + 1, this.size++ - i);
         this.products[i] = product;
     }
 
     public boolean addAll(Collection<? extends Product> collection) {
-        Product[] oldProducts = Arrays.copyOf(this.products, this.products.length);
-        int oldSize = this.size;
         for (Product product : collection) {
             if (!this.add(product))
                 return false;
@@ -58,7 +58,7 @@ public class ProductContainer implements List<Product> {
     }
 
     public boolean addAll(int i, Collection<? extends Product> collection) {
-        Objects.checkIndex(i, this.size+1);
+        Objects.checkIndex(i, this.size + 1);
         Product[] newProducts = new Product[collection.size()];
         int arrayIndex = 0;
         for (Product product : collection) {
@@ -105,7 +105,7 @@ public class ProductContainer implements List<Product> {
 
     public boolean removeAll(Collection<?> collection) {
         for (var val : collection) {
-            for(int i = this.size-1; i >= 0 ; i--) {
+            for (int i = this.size - 1; i >= 0; i--) {
                 Product product = this.products[i];
                 if (product.equals(val)) {
                     this.remove(i);
@@ -118,9 +118,9 @@ public class ProductContainer implements List<Product> {
     public boolean retainAll(Collection<?> collection) {
         Product[] newProducts = new Product[this.products.length];
         int newSize = 0;
-        for(int i = 0; i < this.size; i++) {
+        for (int i = 0; i < this.size; i++) {
             Product product = this.products[i];
-            for(var val: collection) {
+            for (var val : collection) {
                 if (product.equals(val)) {
                     newProducts[newSize++] = product;
                 }
@@ -198,17 +198,11 @@ public class ProductContainer implements List<Product> {
     }
 
     public Iterator<Product> iterator() {
-        return new Iterator<Product>() {
-            int currentIndex = 0;
+        return new ProductIterator();
+    }
 
-            public boolean hasNext() {
-                return this.currentIndex < ProductContainer.this.size;
-            }
-
-            public Product next() {
-                return ProductContainer.this.products[this.currentIndex++];
-            }
-        };
+    public Iterator<Product> iterator(Predicate<Product> predicate) {
+        return new ProductIterator(predicate);
     }
 
     public ListIterator<Product> listIterator() {
@@ -219,6 +213,44 @@ public class ProductContainer implements List<Product> {
         Objects.checkIndex(i, this.size);
         return new ProductListIterator(i);
     }
+
+    private class ProductIterator implements Iterator<Product> {
+        private Predicate<Product> predicate;
+        private boolean isSetupPredicate = false;
+
+        int currentIndex = 0;
+
+        public ProductIterator() {
+        }
+
+        public ProductIterator(Predicate<Product> predicate) {
+            this.predicate = predicate;
+            this.isSetupPredicate = true;
+        }
+        private boolean hasNextPredicate() {
+            while(this.hasNextBasic()) {
+                Product product = ProductContainer.this.products[this.currentIndex];
+                if ( this.predicate.test(product)) {
+                    return true;
+                }
+                this.currentIndex++;
+            }
+            return false;
+        }
+        private boolean hasNextBasic() {
+            return this.currentIndex < ProductContainer.this.size;
+        }
+
+        public boolean hasNext() {
+            return this.isSetupPredicate ? this.hasNextPredicate() : this.hasNextBasic();
+        }
+
+        public Product next() {
+            return ProductContainer.this.products[this.currentIndex++];
+        }
+    }
+
+    ;
 
     private class ProductListIterator implements ListIterator<Product> {
         private final int DEFAULT_CURSOR = 0;

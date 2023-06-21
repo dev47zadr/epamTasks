@@ -11,13 +11,4 @@
     </parent>
     <artifactId>task-1</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.epamTasks</groupId>
-            <artifactId>testUtil</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
 </project>

@@ -3,702 +3,520 @@ package com.epamTasks.task1;
 import com.epamTasks.task1.entity.Entity;
 import com.epamTasks.task1.entity.Product;
 import com.epamTasks.task1.entity.Dress;
-import com.epamTasks.testUtil.Helper;
 
-import java.awt.*;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.awt.Color;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 
 public class TestDriveTask1 {
+    private Product[] products = new Product[]{
+            new Dress(1, 12, "Red Dress", Color.RED, Dress.Size.M),
+            new Dress(2, 12, "Blue Dress", Color.BLUE, Dress.Size.S),
+            new Dress(3, 9, "Black Dress", Color.BLACK, Dress.Size.S),
+            new Dress(4, 12, "GREEN Dress", Color.GREEN, Dress.Size.M)
+    };
+    private ProductContainer productContainer;
+
+    @Before
+    public void initProductContainer() {
+        System.out.println("Before");
+        this.productContainer = new ProductContainer();
+    }
+
     @Test
     public void testCheckDeepHierarchy() {
         assertEquals(Dress.class.getSuperclass(), Product.class);
         assertEquals(Product.class.getSuperclass(), Entity.class);
     }
+
     @Test
     public void testProductContainerIsList() {
         Class<?>[] interfaces = ProductContainer.class.getInterfaces();
+
         assertTrue(Arrays.asList(interfaces).contains(List.class));
     }
 
     @Test
-    public void testProductContainerConstructor() {
-        ProductContainer productContainer = new ProductContainer();
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(0,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) new Product[10], (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
-        productContainer = new ProductContainer(2);
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(0,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) new Product[10], (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-        productContainer = new ProductContainer(11);
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(0,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) new Product[11], (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+    public void testProductContainerConstructor_1() {
+        assertEquals(0, this.productContainer.size());
+        assertArrayEquals((Object[]) new Product[10], this.productContainer.toArray());
     }
 
     @Test
-    public void testProductContainerAdd() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
+    public void testProductContainerConstructor_2() {
+        assertEquals(0, this.productContainer.size());
+        assertArrayEquals((Object[]) new Product[10], this.productContainer.toArray());
+    }
+
+    @Test
+    public void testProductContainerConstructor_3() {
+        ProductContainer productContainer = new ProductContainer(11);
+
+        assertEquals(0, productContainer.size());
+        assertArrayEquals((Object[]) new Product[11], productContainer.toArray());
+    }
+
+    @Test
+    public void testProductContainerAdd_1() {
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product2;
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[1];
 
-        ProductContainer productContainer = new ProductContainer();
-        assertTrue(productContainer.add(product1));
-        assertEquals(1,productContainer.size());
-        assertTrue(productContainer.add(product2));
-        assertEquals(2,productContainer.size());
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(2,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
-        productContainer = new ProductContainer();
-        productContainer.add(0,product1);
-
-        expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(1,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
-        productContainer = new ProductContainer();
-        try {
-            productContainer.add(null);
-            fail("Exception expected");
-        } catch (Exception e) {
-            assertTrue(true);
-        }
-
+        assertTrue(this.productContainer.add(this.products[0]));
+        assertEquals(1, this.productContainer.size());
+        assertTrue(this.productContainer.add(this.products[1]));
+        assertEquals(2, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
-    public void testProductContainerAddAll() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
+    public void testProductContainerAdd_2() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+
+        this.productContainer.add(0, this.products[0]);
+
+        assertEquals(1, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
+
+    @Test
+    public void testProductContainerAdd_3() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[1];
+        expectedProducts[1] = this.products[0];
+        expectedProducts[2] = this.products[2];
+        expectedProducts[3] = this.products[3];
+
+        assertTrue(this.productContainer.add(this.products[2]));
+        assertTrue(this.productContainer.add(this.products[3]));
+        this.productContainer.add(0, this.products[0]);
+        this.productContainer.add(0, this.products[1]);
+
+        assertEquals(4, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
+
+    @Test
+    public void testProductContainerAddAll_1() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[1];
+        expectedProducts[2] = this.products[2];
+        expectedProducts[3] = this.products[3];
         List<Product> products = new ArrayList<>();
-        products.add(product3);
-        products.add(product4);
+        products.add(this.products[2]);
+        products.add(this.products[3]);
 
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+
+        assertTrue(this.productContainer.addAll(products));
+        assertEquals(4, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
+
+    @Test
+    public void testProductContainerAddAll_2() {
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product2;
-        expectedProducts[2] = product3;
-        expectedProducts[3] = product4;
+        expectedProducts[0] = this.products[2];
+        expectedProducts[1] = this.products[3];
+        expectedProducts[2] = this.products[0];
+        expectedProducts[3] = this.products[1];
+        List<Product> products = new ArrayList<>();
+        products.add(this.products[2]);
+        products.add(this.products[3]);
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        assertTrue(productContainer.addAll(products));
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
 
-            assertEquals(4,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertTrue(this.productContainer.addAll(0, products));
+        assertEquals(4, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
 
-        products = new ArrayList<>();
-        products.add(product3);
-        products.add(product4);
+    @Test
+    public void testProductContainerAddAll_3() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[1];
+        expectedProducts[2] = this.products[2];
+        expectedProducts[3] = this.products[3];
+        List<Product> products = new ArrayList<>();
+        products.add(this.products[2]);
+        products.add(this.products[3]);
 
-        expectedProducts = new Product[10];
-        expectedProducts[0] = product3;
-        expectedProducts[1] = product4;
-        expectedProducts[2] = product1;
-        expectedProducts[3] = product2;
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
 
-        productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        assertTrue(productContainer.addAll(0,products));
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
+        assertTrue(this.productContainer.addAll(2, products));
+        assertEquals(4, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
 
-            assertEquals(4,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+    @Test
+    public void testProductContainerAddAll_4() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[1];
+        List<Product> products = new ArrayList<>();
 
-        products = new ArrayList<>();
-        products.add(product3);
-        products.add(product4);
+        products.add(this.products[0]);
+        products.add(this.products[1]);
 
-        expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product2;
-        expectedProducts[2] = product3;
-        expectedProducts[3] = product4;
-
-        productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        assertTrue(productContainer.addAll(2,products));
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(4,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
-
-        products.set(1, null);
-        try {
-            productContainer.addAll(products);
-            fail("Exception expected");
-        } catch (Exception e) {
-            assertTrue(true);
-        }
-
+        assertTrue(this.productContainer.addAll(0, products));
+        assertEquals(2, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
     public void testProductContainerSet() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
+        this.productContainer.add(0, this.products[0]);
 
-        Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product4;
-        expectedProducts[2] = product3;
-        expectedProducts[3] = product4;
-
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertEquals(product2,productContainer.set(1,product4));
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(4,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertEquals(this.products[0], this.productContainer.set(0, this.products[3]));
+        assertEquals(this.products[3], this.productContainer.get(0));
     }
 
     @Test
     public void testProductContainerGet() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
+        this.productContainer.add(0, this.products[0]);
+        this.productContainer.add(1, this.products[1]);
+        this.productContainer.add(2, this.products[2]);
 
-        Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product2;
-        expectedProducts[2] = product3;
-        expectedProducts[3] = product4;
-
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertEquals(product2,productContainer.get(1));
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(4,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
+        assertEquals(this.products[1], this.productContainer.get(1));
     }
 
     @Test
-    public void testProductContainerRemove() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
+    public void testProductContainerRemove_1() {
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product3;
-        expectedProducts[2] = product4;
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[2];
+        expectedProducts[2] = this.products[3];
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertEquals(product2,productContainer.remove(1));
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
+        assertEquals(this.products[1], this.productContainer.remove(1));
+        assertEquals(3, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
+    }
 
-            assertEquals(3,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+    @Test
+    public void testProductContainerRemove_2() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[2];
+        expectedProducts[2] = this.products[3];
 
-        expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product3;
-        expectedProducts[2] = product4;
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertTrue(productContainer.remove(product2));
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(3,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-
+        assertTrue(this.productContainer.remove(this.products[1]));
+        assertEquals(3, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
     public void testProductContainerRemoveAll() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        expectedProducts[1] = product1;
-        expectedProducts[2] = product4;
-
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[0];
+        expectedProducts[2] = this.products[3];
         List<Product> products = new ArrayList<>();
-        products.add(product2);
-        products.add(product3);
+        products.add(this.products[1]);
+        products.add(this.products[2]);
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertTrue(productContainer.removeAll(products));
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(3,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertTrue(this.productContainer.removeAll(products));
+        assertEquals(3, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
     public void testProductContainerRetainAll() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product2;
-        expectedProducts[1] = product2;
-        expectedProducts[2] = product3;
-
+        expectedProducts[0] = this.products[1];
+        expectedProducts[1] = this.products[1];
+        expectedProducts[2] = this.products[2];
         List<Product> products = new ArrayList<>();
-        products.add(product2);
-        products.add(product3);
+        products.add(this.products[1]);
+        products.add(this.products[2]);
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertTrue(productContainer.retainAll(products));
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(3,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertTrue(this.productContainer.retainAll(products));
+        assertEquals(3, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
     public void testProductContainerClear() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
         Product[] expectedProducts = new Product[10];
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        productContainer.clear();
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
+        this.productContainer.clear();
 
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(0,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertEquals(0, this.productContainer.size());
+        assertArrayEquals((Object[]) expectedProducts, this.productContainer.toArray());
     }
 
     @Test
     public void testProductContainerSize() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
+        assertEquals(0, this.productContainer.size());
 
-        ProductContainer productContainer = new ProductContainer();
-        assertEquals(0,productContainer.size());
-        productContainer.add(product1);
-        assertEquals(1,productContainer.size());
-        productContainer.add(product2);
-        assertEquals(2,productContainer.size());
-        productContainer.remove(product1);
-        assertEquals(1,productContainer.size());
-        productContainer.remove(product2);
-        assertEquals(0,productContainer.size());
-        for(int i = 0; i < 100; i++) {
-            productContainer.add(product1);
-        }
-        assertEquals(100,productContainer.size());
-        for(int i = 0; i < 25; i++) {
-            productContainer.remove(product1);
-        }
-        assertEquals(75,productContainer.size());
+        this.productContainer.add(this.products[0]);
+        assertEquals(1, this.productContainer.size());
 
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-            Product[] product = (Product[])privateProducts.get(productContainer);
+        this.productContainer.add(this.products[1]);
+        assertEquals(2, this.productContainer.size());
 
-            assertEquals(160,product.length);
-            assertEquals(75, privateSize.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
+        this.productContainer.remove(this.products[0]);
+        assertEquals(1, this.productContainer.size());
+
+        this.productContainer.remove(this.products[1]);
+        assertEquals(0, this.productContainer.size());
+
+        for (int i = 0; i < 100; i++) {
+            this.productContainer.add(this.products[0]);
         }
+        assertEquals(100, this.productContainer.size());
+
+        for (int i = 0; i < 25; i++) {
+            this.productContainer.remove(this.products[0]);
+        }
+        assertEquals(75, this.productContainer.size());
     }
 
     @Test
-    public void testProductContainerIsEmpty() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
+    public void testProductContainerIsEmpty_1() {
+        assertTrue(this.productContainer.isEmpty());
+    }
 
-        Product[] expectedProducts = new Product[10];
+    @Test
+    public void testProductContainerIsEmpty_2() {
+        this.productContainer.add(this.products[0]);
 
-        ProductContainer productContainer = new ProductContainer();
-        assertTrue(productContainer.isEmpty());
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(0,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
-        expectedProducts[0] = product1;
-
-        productContainer.add(product1);
-        assertFalse(productContainer.isEmpty());
-
-        try {
-            Field privateSize = Helper.makeFieldPublic(ProductContainer.class,"size");
-            Field privateProducts = Helper.makeFieldPublic(ProductContainer.class,"products");
-
-            assertEquals(1,privateSize.get(productContainer));
-            assertArrayEquals((Object[]) expectedProducts, (Object[]) privateProducts.get(productContainer));
-        } catch (Exception e) {
-            fail("Exception doesn't expected");
-        }
+        assertFalse(this.productContainer.isEmpty());
     }
 
     @Test
     public void testProductContainerIndexOf() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
+        this.productContainer.add(0, this.products[0]);
+        this.productContainer.add(1, this.products[1]);
+        this.productContainer.add(2, this.products[2]);
+        this.productContainer.add(3, this.products[3]);
+        this.productContainer.add(4, this.products[0]);
 
-        Product[] expectedProducts = new Product[10];
-
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        assertEquals(1,productContainer.indexOf(product2));
+        assertEquals(0, this.productContainer.indexOf(this.products[0]));
+        assertEquals(2, this.productContainer.indexOf(this.products[2]));
     }
 
     @Test
     public void testProductContainerLastIndexOf() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
+        this.productContainer.add(0, this.products[0]);
+        this.productContainer.add(1, this.products[1]);
+        this.productContainer.add(2, this.products[2]);
+        this.productContainer.add(3, this.products[3]);
+        this.productContainer.add(4, this.products[0]);
 
-        Product[] expectedProducts = new Product[10];
-
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        productContainer.add(product2);
-        assertEquals(4,productContainer.lastIndexOf(product2));
+        assertEquals(4, this.productContainer.lastIndexOf(this.products[0]));
+        assertEquals(2, this.productContainer.lastIndexOf(this.products[2]));
     }
 
     @Test
-    public void testProductContainerLastContains() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
+    public void testProductContainerContains_1() {
+        this.productContainer.add(this.products[2]);
 
-        Product[] expectedProducts = new Product[10];
-
-        ProductContainer productContainer = new ProductContainer();
-
-        assertFalse(productContainer.contains(product1));
-
-        productContainer.add(product1);
-
-        assertTrue(productContainer.contains(product1));
+        assertFalse(this.productContainer.contains(this.products[0]));
     }
 
     @Test
-    public void testProductContainerLastContainsAll() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
+    public void testProductContainerContains_2() {
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[0]);
 
+        assertTrue(this.productContainer.contains(this.products[0]));
+    }
+
+    @Test
+    public void testProductContainerContainsAll() {
         List<Product> products = new ArrayList<>();
 
-        ProductContainer productContainer = new ProductContainer();
+        assertTrue(this.productContainer.containsAll(products));
 
-        assertTrue(productContainer.containsAll(products));
+        this.productContainer.add(this.products[0]);
 
-        productContainer.add(product1);
+        assertTrue(this.productContainer.containsAll(products));
 
-        assertTrue(productContainer.containsAll(products));
+        products.add(this.products[0]);
 
-        products.add(product1);
+        assertTrue(this.productContainer.containsAll(products));
 
-        assertTrue(productContainer.containsAll(products));
+        products.add(this.products[1]);
 
-        products.add(product2);
+        assertFalse(this.productContainer.containsAll(products));
 
-        assertFalse(productContainer.containsAll(products));
+        this.productContainer.add(this.products[1]);
 
-        productContainer.add(product2);
+        assertTrue(this.productContainer.containsAll(products));
 
-        assertTrue(productContainer.containsAll(products));
+        products.add(this.products[1]);
 
-        products.add(product2);
+        assertTrue(this.productContainer.containsAll(products));
 
-        assertTrue(productContainer.containsAll(products));
+        products.add(this.products[2]);
 
-        products.add(product3);
-
-        assertFalse(productContainer.containsAll(products));
-
+        assertFalse(this.productContainer.containsAll(products));
     }
 
     @Test
-    public void testProductContainerLastToArray() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
+    public void testProductContainerToArray() {
         Product[] expectedProduct = new Product[10];
-        expectedProduct[0] = product1;
-        expectedProduct[1] = product2;
-        expectedProduct[2] = product3;
-        expectedProduct[3] = product4;
+        expectedProduct[0] = this.products[0];
+        expectedProduct[1] = this.products[1];
+        expectedProduct[2] = this.products[2];
+        expectedProduct[3] = this.products[3];
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-
-        assertArrayEquals(expectedProduct,productContainer.toArray());
-
-        assertArrayEquals(expectedProduct,productContainer.toArray(new Product[10]));
-
-        expectedProduct = Arrays.copyOf(expectedProduct,4);
-        assertArrayEquals(expectedProduct,productContainer.toArray(new Product[2]));
-
+        assertArrayEquals(expectedProduct, this.productContainer.toArray());
+        assertArrayEquals(expectedProduct, this.productContainer.toArray(new Product[10]));
+        expectedProduct = Arrays.copyOf(expectedProduct, 4);
+        assertArrayEquals(expectedProduct, this.productContainer.toArray(new Product[2]));
     }
 
     @Test
-    public void testProductContainerLastSubList() {
-        Product product1 = new Dress(1,12,"Red Dress", Color.RED,Dress.Size.M);
-        Product product2 = new Dress(2,12,"Blue Dress", Color.BLUE,Dress.Size.S);
-        Product product3 = new Dress(3,13,"Black Dress", Color.BLACK,Dress.Size.S);
-        Product product4 = new Dress(4,12,"GREEN Dress", Color.GREEN,Dress.Size.M);
-
+    public void testProductContainerSubList() {
         List<Product> expectedListProducts = new ProductContainer();
-        expectedListProducts.add(product2);
-        expectedListProducts.add(product3);
+        expectedListProducts.add(this.products[1]);
+        expectedListProducts.add(this.products[2]);
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        ProductContainer productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-
-        assertArrayEquals(expectedListProducts.toArray(),productContainer.subList(1,3).toArray());
-
-        assertThat(expectedListProducts.toArray(),not(equalTo(productContainer.subList(1,2).toArray())));
-
+        assertArrayEquals(expectedListProducts.toArray(), this.productContainer.subList(1, 3).toArray());
+        assertThat(expectedListProducts.toArray(), not(equalTo(this.productContainer.subList(1, 2).toArray())));
     }
 
     @Test
-    public void testProductContainerIterator() {
-        Product product1 = new Dress(1, 12, "Red Dress", Color.RED, Dress.Size.M);
-        Product product2 = new Dress(2, 12, "Blue Dress", Color.BLUE, Dress.Size.S);
-        Product product3 = new Dress(3, 13, "Black Dress", Color.BLACK, Dress.Size.S);
-        Product product4 = new Dress(4, 12, "GREEN Dress", Color.GREEN, Dress.Size.M);
-
-        ProductContainer productContainer = new ProductContainer();
-        Iterator<Product> iterator = productContainer.iterator();
+    public void testProductContainerIterator_1() {
+        Iterator<Product> iterator = this.productContainer.iterator();
 
         assertFalse(iterator.hasNext());
 
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
-        iterator = productContainer.iterator();
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
+        iterator = this.productContainer.iterator();
 
         assertTrue(iterator.hasNext());
-        assertEquals(product1, iterator.next());
+        assertEquals(this.products[0], iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals(product2, iterator.next());
+        assertEquals(this.products[1], iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals(product3, iterator.next());
+        assertEquals(this.products[2], iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals(product4, iterator.next());
+        assertEquals(this.products[3], iterator.next());
         assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void testProductContainerIterator_2() {
+        Product[] expectedProducts = new Product[10];
+        expectedProducts[0] = this.products[0];
+        expectedProducts[1] = this.products[1];
+        expectedProducts[2] = this.products[3];
+        Product[] actualProducts = new Product[10];
+
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
+
+        Iterator<Product> iterator = this.productContainer.iterator(p -> p.getPrice() > 10);
+
+        int i = 0;
+        while (iterator.hasNext()) {
+            actualProducts[i++] = iterator.next();
+        }
+
+        assertArrayEquals(expectedProducts, actualProducts);
     }
 
     @Test
     public void testProductContainerListIterator() {
-        Product product1 = new Dress(1, 12, "Red Dress", Color.RED, Dress.Size.M);
-        Product product2 = new Dress(2, 12, "Blue Dress", Color.BLUE, Dress.Size.S);
-        Product product3 = new Dress(3, 13, "Black Dress", Color.BLACK, Dress.Size.S);
-        Product product4 = new Dress(4, 12, "GREEN Dress", Color.GREEN, Dress.Size.M);
-
-        ProductContainer productContainer = new ProductContainer();
-        ListIterator<Product> iterator = productContainer.listIterator();
+        ListIterator<Product> iterator = this.productContainer.listIterator();
 
         assertFalse(iterator.hasNext());
         assertFalse(iterator.hasPrevious());
-        assertEquals(0,iterator.nextIndex());
-        assertEquals(-1,iterator.previousIndex());
+        assertEquals(0, iterator.nextIndex());
+        assertEquals(-1, iterator.previousIndex());
 
-        iterator.add(product1);
+        iterator.add(this.products[0]);
         assertFalse(iterator.hasPrevious());
         assertTrue(iterator.hasNext());
 
         Product[] expectedProducts = new Product[10];
-        expectedProducts[0] = product1;
-        assertArrayEquals(expectedProducts,productContainer.toArray());
+        expectedProducts[0] = this.products[0];
+        assertArrayEquals(expectedProducts, this.productContainer.toArray());
 
-        productContainer = new ProductContainer();
-        productContainer.add(product1);
-        productContainer.add(product2);
-        productContainer.add(product3);
-        productContainer.add(product4);
+        this.productContainer = new ProductContainer();
+        this.productContainer.add(this.products[0]);
+        this.productContainer.add(this.products[1]);
+        this.productContainer.add(this.products[2]);
+        this.productContainer.add(this.products[3]);
 
-        iterator = productContainer.listIterator();
-        assertEquals(product1,iterator.next());
-        assertEquals(product2,iterator.previous());
-        assertEquals(0,iterator.nextIndex());
-        assertEquals(-1,iterator.previousIndex());
-        iterator.add(product4);
+        iterator = this.productContainer.listIterator();
+        assertEquals(this.products[0], iterator.next());
+        assertEquals(this.products[1], iterator.previous());
+        assertEquals(0, iterator.nextIndex());
+        assertEquals(-1, iterator.previousIndex());
+        iterator.add(this.products[3]);
         expectedProducts = new Product[10];
-        expectedProducts[0] = product4;
-        expectedProducts[1] = product1;
-        expectedProducts[2] = product2;
-        expectedProducts[3] = product3;
-        expectedProducts[4] = product4;
-        assertArrayEquals(expectedProducts,productContainer.toArray());
+        expectedProducts[0] = this.products[3];
+        expectedProducts[1] = this.products[0];
+        expectedProducts[2] = this.products[1];
+        expectedProducts[3] = this.products[2];
+        expectedProducts[4] = this.products[3];
+        assertArrayEquals(expectedProducts, this.productContainer.toArray());
     }
 }
