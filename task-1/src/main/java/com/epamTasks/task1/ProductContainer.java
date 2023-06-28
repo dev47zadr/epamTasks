@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 
 public class ProductContainer implements List<Product> {
     private final int DEFAULT_SIZE = 10;
-    private int size = 0;
-    private Product[] products;
+    protected int size = 0;
+    protected Product[] products;
 
     public ProductContainer() {
         this.products = new Product[this.DEFAULT_SIZE];
